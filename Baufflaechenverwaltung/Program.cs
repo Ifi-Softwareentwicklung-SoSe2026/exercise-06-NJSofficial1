@@ -1,54 +1,23 @@
 using System;
 using System.Collections.Generic;
 
-namespace Baufflaechenverwaltung.Models
+namespace Baufflaechenverwaltung
 {
     public enum Nutzung { Gewerbe, Landwirtschaft, Forst, Wohnnutzung, Brachfläche }
     public enum Bebaubarkeit { Ja, Nein, Auflagen }
     public enum FlaechenStatus { Frei, Reserviert, Bebaut }
     public enum VorhabenStatus { AntragEingereicht, Genehmigt, Abgelehnt, InBearbeitung, Abgeschlossen }
 
-    public interface IAntragsteller
-    {
-        string Name { get; set; }
-        string Kontaktdaten { get; set; }
-        string Firma { get; set; }
-    }
-
-    public interface IBauflaeche
-    {
-        string Flurstuecknummer { get; set; }
-        double Groesse { get; set; }
-        string Lage { get; set; }
-        Nutzung AktuelleNutzung { get; set; }
-        Bebaubarkeit Bebaubarkeit { get; set; }
-        string BPlanNummer { get; set; }
-        decimal Bodenrichtwert { get; set; }
-        string Eigentuemer { get; set; }
-        FlaechenStatus Status { get; set; }
-        void ResetToDefaults();
-    }
-
-    public interface IBauvorhaben
-    {
-        IAntragsteller Antragsteller { get; set; }
-        string GeplanteNutzung { get; set; }
-        DateTime Beginn { get; set; }
-        DateTime Fertigstellung { get; set; }
-        VorhabenStatus Status { get; set; }
-        List<IBauflaeche> ZugeordneteFlaechen { get; set; }
-    }
-
-    public class Antragsteller : IAntragsteller
+    public class Antragsteller
     {
         public string Name { get; set; } = string.Empty;
         public string Kontaktdaten { get; set; } = string.Empty;
         public string Firma { get; set; } = string.Empty;
     }
 
-    public class Bauflaeche : IBauflaeche
+    public class Bauflaeche
     {
-        public string Flurstuecknummer { get; set; } = string.Empty;
+        public string FlurstueckNummer { get; set; } = string.Empty;
         public double Groesse { get; set; }
         public string Lage { get; set; } = string.Empty;
         public Nutzung AktuelleNutzung { get; set; }
@@ -56,74 +25,64 @@ namespace Baufflaechenverwaltung.Models
         public string BPlanNummer { get; set; } = string.Empty;
         public decimal Bodenrichtwert { get; set; }
         public string Eigentuemer { get; set; } = string.Empty;
-        public FlaechenStatus Status { get; set; }
+        public FlaechenStatus Status { get; set; } = FlaechenStatus.Frei;
 
-        public void ResetToDefaults()
-        {
-            Flurstuecknummer = "0000 00000 000/000";
-            Groesse = 0;
-            Lage = "Unbekannt";
-            AktuelleNutzung = Nutzung.Brachfläche;
-            Bebaubarkeit = Bebaubarkeit.Nein;
-            BPlanNummer = "Keine";
-            Bodenrichtwert = 0;
-            Eigentuemer = "Unbekannt";
-            Status = FlaechenStatus.Frei;
-        }
-    }
-
-    public class Bauvorhaben : IBauvorhaben
-    {
-        public IAntragsteller Antragsteller { get; set; } = new Antragsteller();
-        public string GeplanteNutzung { get; set; } = string.Empty;
-        public DateTime Beginn { get; set; }
-        public DateTime Fertigstellung { get; set; }
-        public VorhabenStatus Status { get; set; }
-        public List<IBauflaeche> ZugeordneteFlaechen { get; set; } = new List<IBauflaeche>();
+        public void FlaecheReservieren() => Status = FlaechenStatus.Reserviert;
     }
 
     public class Grundstueck
     {
-        public string Id { get; set; } = string.Empty;
-        public List<IBauflaeche> Flaechen { get; set; } = new List<IBauflaeche>();
+        public string Bezeichnung { get; set; } = string.Empty;
+        public List<Bauflaeche> Flaechen { get; set; } = new List<Bauflaeche>();
     }
-}
 
-namespace Baufflaechenverwaltung
-{
-    using Baufflaechenverwaltung.Models;
+    public class Bauvorhaben
+    {
+        public string Titel { get; set; } = string.Empty;
+        public Antragsteller Antragsteller { get; set; } = new Antragsteller();
+        public string GeplanteNutzung { get; set; } = string.Empty;
+        public DateTime Beginn { get; set; }
+        public DateTime Fertigstellung { get; set; }
+        public VorhabenStatus Status { get; set; } = VorhabenStatus.AntragEingereicht;
+        public List<Bauflaeche> ZugeordneteFlaechen { get; set; } = new List<Bauflaeche>();
+
+        public void StatusAktualisieren(VorhabenStatus neuerStatus) => Status = neuerStatus;
+    }
 
     class Program
     {
         static void Main(string[] args)
         {
-            var flaeche = new Bauflaeche
+            // Demonstration
+            var flaeche1 = new Bauflaeche
             {
-                Flurstuecknummer = "0015 00012 001/002",
-                Groesse = 500,
+                FlurstueckNummer = "0015 00012 001/002",
+                Groesse = 500.0,
                 Lage = "Leipzig-Nord",
-                AktuelleNutzung = Nutzung.Wohnnutzung,
+                AktuelleNutzung = Nutzung.Brachfläche,
                 Bebaubarkeit = Bebaubarkeit.Ja,
                 BPlanNummer = "BP-2022-089",
                 Bodenrichtwert = 500m,
-                Eigentuemer = "Max Mustermann",
-                Status = FlaechenStatus.Frei
+                Eigentuemer = "Max Mustermann"
             };
 
-            Console.WriteLine($"Flurstück: {flaeche.Flurstuecknummer}, Status: {flaeche.Status}");
-            
-            flaeche.ResetToDefaults();
-            Console.WriteLine($"Nach Reset - Flurstück: {flaeche.Flurstuecknummer}, Status: {flaeche.Status}");
+            var grundstueck = new Grundstueck { Bezeichnung = "GS-Nord-1" };
+            grundstueck.Flaechen.Add(flaeche1);
 
             var vorhaben = new Bauvorhaben
             {
-                Antragsteller = new Antragsteller { Name = "Bau GmbH", Firma = "Bau GmbH" },
+                Titel = "Neubau Wohnhaus",
+                Antragsteller = new Antragsteller { Name = "Erika Musterfrau", Firma = "Bau GmbH" },
                 GeplanteNutzung = "Wohngebäude",
-                Status = VorhabenStatus.AntragEingereicht
+                Beginn = DateTime.Now,
+                Fertigstellung = DateTime.Now.AddYears(1)
             };
-            vorhaben.ZugeordneteFlaechen.Add(flaeche);
+            vorhaben.ZugeordneteFlaechen.Add(flaeche1);
+            flaeche1.FlaecheReservieren();
 
-            Console.WriteLine($"Bauvorhaben Status: {vorhaben.Status}, Flächenanzahl: {vorhaben.ZugeordneteFlaechen.Count}");
+            Console.WriteLine($"Bauvorhaben '{vorhaben.Titel}' für Fläche {flaeche1.FlurstueckNummer} angelegt.");
+            Console.WriteLine($"Status der Fläche: {flaeche1.Status}");
+            Console.WriteLine($"Status des Vorhabens: {vorhaben.Status}");
         }
     }
 }
