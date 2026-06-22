@@ -19,7 +19,7 @@ tags: [Sommersemester2026, Softwareentwicklung, Übung06]
 
 -->
 
-[![LiaScript Course](https://raw.githubusercontent.com/LiaScript/LiaScript/master/badges/course.svg)](https://liascript.github.io/course/?https://raw.githubusercontent.com/Ifi-Softwareentwicklung-SoSe2026/exercise-06/refs/heads/main/README.md)
+[![LiaScript Course](https://github.com/Ifi-Softwareentwicklung-SoSe2026/exercise-06-NJSofficial1/issues/1)]
 
 # Aufgabe 06
 
