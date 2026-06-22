@@ -186,12 +186,14 @@ Ihre Aufgabe ist dann:
 
 Falls im Verlauf der Jürgen-Issues ein UML-Klassendiagramm gefordert wird, ergänzen Sie es in diesem Abschnitt.
 
+<!-- kevin-uml:start -->
 ```text @plantUML
 @startuml
 
 @enduml
 ```
 @plantUML.eval(png)
+<!-- kevin-uml:end -->
 
 ## Aufgabenmaterial
 
