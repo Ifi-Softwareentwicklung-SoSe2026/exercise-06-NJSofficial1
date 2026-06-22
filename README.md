@@ -189,49 +189,7 @@ Falls im Verlauf der Jürgen-Issues ein UML-Klassendiagramm gefordert wird, erg�
 <!-- kevin-uml:start -->
 ```text @plantUML
 @startuml
-class Grundstueck {
-  +String Bezeichnung
-  +List<Bauflaeche> Flaechen
-}
 
-class Bauflaeche {
-  +String FlurstueckNummer
-  +double Groesse
-  +String Lage
-  +Nutzung AktuelleNutzung
-  +Bebaubarkeit Bebaubarkeit
-  +String BPlanNummer
-  +decimal Bodenrichtwert
-  +String Eigentuemer
-  +FlaechenStatus Status
-  +void FlaecheReservieren()
-}
-
-class Bauvorhaben {
-  +String Titel
-  +Antragsteller Antragsteller
-  +String GeplanteNutzung
-  +DateTime Beginn
-  +DateTime Fertigstellung
-  +VorhabenStatus Status
-  +List<Bauflaeche> ZugeordneteFlaechen
-  +void StatusAktualisieren(VorhabenStatus)
-}
-
-class Antragsteller {
-  +String Name
-  +String Kontaktdaten
-  +String Firma
-}
-
-enum Nutzung { Gewerbe, Landwirtschaft, Forst, Wohnnutzung, Brachfläche }
-enum Bebaubarkeit { Ja, Nein, Auflagen }
-enum FlaechenStatus { Frei, Reserviert, Bebaut }
-enum VorhabenStatus { AntragEingereicht, Genehmigt, Abgelehnt, InBearbeitung, Abgeschlossen }
-
-Grundstueck "1" *-- "*" Bauflaeche
-Bauvorhaben "*" o-- "*" Bauflaeche
-Bauvorhaben "1" -- "1" Antragsteller
 @enduml
 ```
 @plantUML.eval(png)
