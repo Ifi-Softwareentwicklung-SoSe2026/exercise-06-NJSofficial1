@@ -29,7 +29,7 @@ Softwareentwicklung SoSe2026
 ## GitHub Issues – Kurzanleitung
 
 Kategorisierung
-======================
+====================
 
 Issues können in GitHub durch Labels und Typen kategorisiert werden, um sie thematisch und nach Art zu ordnen.
 
