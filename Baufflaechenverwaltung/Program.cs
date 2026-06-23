@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+// Kevins Implementierung
 namespace Baufflaechenverwaltung
 {
     public enum Nutzung { Gewerbe, Landwirtschaft, Forst, Wohnnutzung, Brachfläche }
