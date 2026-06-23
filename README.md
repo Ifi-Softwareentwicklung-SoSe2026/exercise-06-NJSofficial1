@@ -189,11 +189,51 @@ Falls im Verlauf der Jürgen-Issues ein UML-Klassendiagramm gefordert wird, erg�
 <!-- kevin-uml:start -->
 ```text @plantUML
 @startuml
+class Angestellter{
+  + Name: string
+  + Kontaktdaten: string
+  + Firma: string
+  }
+  
+class Bauflaechen{
+  + FlurstueckNummer: string
+  + Groesse: double
+  + Lage: string
+  + AktuelleNutzung: Nutzung
+  + Bebaubarkeit: Bebaubarkeit
+  + BPlanNummer: string
+  + Bodenrichtwert: decimal
+  + Eigentuemer: string
+  + Status: FlaechenStatus
+  + BebaubarkeitPrüfen(): bool 
+  + FlaecheReservieren(): void
+}
 
+class Grundstueck{
++ Bezeichnung: string
++ Flaechen: List<Bauflaeche> 
+}
+
+class Bauvorhaben{
+  + Titel: string
+  + Antragsteller: Antragsteller
+  + GeplanteNutzung: string
+  + Beginn: DateTime
+  + Fertigstellung: DateTime
+  + VorhabenStatus: Status
+  + ZugeordneteFLaechen: List<Bauflaeche>
+  + StatusAktualisieren: void
+  }
+  
+'Beziehungen 
+Grundstueck "1" *-- "0..*" Bauflaechen : besteht aus
+Bauvorhaben "0..*" o-- "1..*" Bauflaechen : nutzt
+Angestellter "1..*" -- "0..*" Bauvorhaben : betreut
 @enduml
 ```
 @plantUML.eval(png)
 <!-- kevin-uml:end -->
+
 
 ## Aufgabenmaterial
 
