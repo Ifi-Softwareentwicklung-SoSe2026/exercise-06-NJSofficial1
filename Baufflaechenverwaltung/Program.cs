@@ -27,7 +27,25 @@ namespace Baufflaechenverwaltung
         public string Eigentuemer { get; set; } = string.Empty;
         public FlaechenStatus Status { get; set; } = FlaechenStatus.Frei;
 
-        public void FlaecheReservieren() => Status = FlaechenStatus.Reserviert;
+        public bool BebaubarkeitPruefen()
+        {
+            if (Bebaubarkeit == Bebaubarkeit.Nein)
+            {
+                Console.WriteLine("Fläche kann nicht bebaut werden.");
+                return false;
+            }
+            return true;
+        }
+
+        public void FlaecheReservieren()
+        {
+            if (Status == FlaechenStatus.Bebaut)
+            {
+                Console.WriteLine("Bereits bebaute Flächen können nicht reserviert werden.");
+                return;
+            }
+            Status = FlaechenStatus.Reserviert;
+        }
     }
 
     public class Grundstueck
@@ -66,8 +84,16 @@ namespace Baufflaechenverwaltung
                 Eigentuemer = "Max Mustermann"
             };
 
+            var flaeche2 = new Bauflaeche
+            {
+                FlurstueckNummer = "0015 00012 001/003",
+                Bebaubarkeit = Bebaubarkeit.Nein,
+                Status = FlaechenStatus.Bebaut
+            };
+
             var grundstueck = new Grundstueck { Bezeichnung = "GS-Nord-1" };
             grundstueck.Flaechen.Add(flaeche1);
+            grundstueck.Flaechen.Add(flaeche2);
 
             var vorhaben = new Bauvorhaben
             {
@@ -77,12 +103,25 @@ namespace Baufflaechenverwaltung
                 Beginn = DateTime.Now,
                 Fertigstellung = DateTime.Now.AddYears(1)
             };
-            vorhaben.ZugeordneteFlaechen.Add(flaeche1);
-            flaeche1.FlaecheReservieren();
 
-            Console.WriteLine($"Bauvorhaben '{vorhaben.Titel}' für Fläche {flaeche1.FlurstueckNummer} angelegt.");
-            Console.WriteLine($"Status der Fläche: {flaeche1.Status}");
-            Console.WriteLine($"Status des Vorhabens: {vorhaben.Status}");
+            // Test 1: Gültige Reservierung
+            if (flaeche1.BebaubarkeitPruefen())
+            {
+                flaeche1.FlaecheReservieren();
+                vorhaben.ZugeordneteFlaechen.Add(flaeche1);
+                Console.WriteLine($"Fläche {flaeche1.FlurstueckNummer} erfolgreich reserviert.");
+            }
+
+            // Test 2: Nicht bebaubar
+            Console.WriteLine("Prüfe Fläche 2 (nicht bebaubar):");
+            flaeche2.BebaubarkeitPruefen();
+
+            // Test 3: Bereits bebaut
+            Console.WriteLine("Versuche Fläche 2 (bebaut) zu reservieren:");
+            flaeche2.FlaecheReservieren();
+
+            Console.WriteLine($"\nStatus der Fläche 1: {flaeche1.Status}");
+            Console.WriteLine($"Status der Fläche 2: {flaeche2.Status}");
         }
     }
 }
