@@ -186,6 +186,7 @@ Ihre Aufgabe ist dann:
 
 Falls im Verlauf der Jürgen-Issues ein UML-Klassendiagramm gefordert wird, ergänzen Sie es in diesem Abschnitt.
 
+<!-- kevin-uml:start -->
 ```text @plantUML
 @startuml
 class Angestellter{
@@ -231,6 +232,7 @@ Angestellter "1..*" -- "0..*" Bauvorhaben : betreut
 @enduml
 ```
 @plantUML.eval(png)
+<!-- kevin-uml:end -->
 
 
 ## Aufgabenmaterial
