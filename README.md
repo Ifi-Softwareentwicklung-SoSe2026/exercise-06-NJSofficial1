@@ -29,7 +29,7 @@ Softwareentwicklung SoSe2026
 ## GitHub Issues – Kurzanleitung
 
 Kategorisierung
-====================
+======================
 
 Issues können in GitHub durch Labels und Typen kategorisiert werden, um sie thematisch und nach Art zu ordnen.
 
@@ -224,13 +224,14 @@ class Bauvorhaben{
   + StatusAktualisieren: void
   }
   
-'Beziehungen
+'Beziehungen 
 Grundstueck "1" *-- "0..*" Bauflaechen : besteht aus
 Bauvorhaben "0..*" o-- "1..*" Bauflaechen : nutzt
 Angestellter "1..*" -- "0..*" Bauvorhaben : betreut
 @enduml
 ```
 @plantUML.eval(png)
+
 
 ## Aufgabenmaterial
 
