@@ -8,13 +8,56 @@ namespace Baufflaechenverwaltung
     public enum Bebaubarkeit { Ja, Nein, Auflagen }
     public enum FlaechenStatus { Frei, Reserviert, Bebaut, Naturschutzgebiet }
     public enum VorhabenStatus { AntragEingereicht, Genehmigt, Abgelehnt, InBearbeitung, Abgeschlossen }
+    public enum Rolle { Administrator, Bauamtsmitarbeiter, Antragsteller, ExternerGutachter }
 
-    public class Antragsteller
+    public class Beteiligter
     {
         public string Name { get; set; } = string.Empty;
         public string Kontaktdaten { get; set; } = string.Empty;
-        public string Firma { get; set; } = string.Empty;
+        public Rolle Rolle { get; set; }
+
+        public Beteiligter(string name, string kontaktdaten, Rolle rolle)
+        {
+            Name = name;
+            Kontaktdaten = kontaktdaten;
+            Rolle = rolle;
+        }
     }
+
+    public class Antragsteller : Beteiligter
+    {
+        public string Firma { get; set; } = string.Empty;
+
+        // Nutzt base, um Name und Kontaktdaten an 'Beteiligter' weiterzugeben
+        public Antragsteller(string name, string kontaktdaten, string firma) 
+            : base(name, kontaktdaten, Rolle.Antragsteller)
+        {
+            Firma = firma;
+        }
+    }
+
+    public class Bauamtsmitarbeiter : Beteiligter
+    {
+        public string Dienstnummer { get; set; } = string.Empty;
+
+        public Bauamtsmitarbeiter(string name, string kontaktdaten, string dienstnummer) 
+            : base(name, kontaktdaten, Rolle.Bauamtsmitarbeiter)
+        {
+            Dienstnummer = dienstnummer;
+        }
+    }
+
+    public class ExternerGutachter : Beteiligter
+    {
+        public string Fachgebiet { get; set; } = string.Empty;
+
+        public ExternerGutachter(string name, string kontaktdaten, string fachgebiet) 
+            : base(name, kontaktdaten, Rolle.ExternerGutachter)
+        {
+            Fachgebiet = fachgebiet;
+        }
+    }
+    
 
     public class Bauflaeche
     {
@@ -62,7 +105,7 @@ namespace Baufflaechenverwaltung
     public class Bauvorhaben
     {
         public string Titel { get; set; } = string.Empty;
-        public Antragsteller Antragsteller { get; set; } = new Antragsteller();
+        public Beteiligter Ersteller { get; set; }
         public string GeplanteNutzung { get; set; } = string.Empty;
         public DateTime Beginn { get; set; }
         public DateTime Fertigstellung { get; set; }
@@ -70,12 +113,28 @@ namespace Baufflaechenverwaltung
         public List<Bauflaeche> ZugeordneteFlaechen { get; set; } = new List<Bauflaeche>();
 
         public void StatusAktualisieren(VorhabenStatus neuerStatus) => Status = neuerStatus;
+
+        public bool StatusAktualisierungMitPruefung(Beteiligter user, VorhabenStatus neuerStatus)
+        {
+            if (user.Rolle == Rolle.ExternerGutachter)
+            {
+                Console.WriteLine($"[ZUGRIFF VERWEIGERT] {user.Name} darf als externer Gutachter den Status nicht ändern.");
+                return false;
+            }
+
+            StatusAktualisieren(neuerStatus);
+            return true;
+        }
     }
 
     class Program
     {
         static void Main(string[] args)
         {
+            var antragsteller = new Antragsteller("Erika Musterfrau", "erika@bau-gmbh.de", "Bau GmbH");
+            var gutachter = new ExternerGutachter("Dr. Umwelt", "mueller@umwelt.de", "Greenpeace");
+            var bauamtsmitarbeiter = new Bauamtsmitarbeiter("Herr Amtsschimmel", "amt@amt.de", "Bauamt");
+
             // Demonstration
             var flaeche1 = new Bauflaeche
             {
@@ -110,7 +169,7 @@ namespace Baufflaechenverwaltung
             var vorhaben = new Bauvorhaben
             {
                 Titel = "Neubau Wohnhaus",
-                Antragsteller = new Antragsteller { Name = "Erika Musterfrau", Firma = "Bau GmbH" },
+                Ersteller = antragsteller,
                 GeplanteNutzung = "Wohngebäude",
                 Beginn = DateTime.Now,
                 Fertigstellung = DateTime.Now.AddYears(1)
@@ -123,6 +182,16 @@ namespace Baufflaechenverwaltung
                 vorhaben.ZugeordneteFlaechen.Add(flaeche1);
                 Console.WriteLine($"Fläche {flaeche1.FlurstueckNummer} erfolgreich reserviert.");
             }
+            
+            // ----- Rechtetest -----
+            Console.WriteLine("\n----- Zugriffstest: -----");
+            Console.WriteLine($"Aktueller Vorhabenstatus: {vorhaben.Status}\n");
+
+            Console.WriteLine($"{gutachter.Name} ({gutachter.Rolle}) versucht Änderung");
+            bool gutachterErfolg = vorhaben.StatusAktualisierungMitPruefung(gutachter, VorhabenStatus.Genehmigt);
+            Console.WriteLine($"Aktion erfolgreich? {gutachterErfolg}");
+            Console.WriteLine($"Status des Vorhabens ist: {vorhaben.Status}\n");
+            // -----
 
             // Test 2: Nicht bebaubar
             Console.WriteLine("Prüfe Fläche 2 (nicht bebaubar):");
