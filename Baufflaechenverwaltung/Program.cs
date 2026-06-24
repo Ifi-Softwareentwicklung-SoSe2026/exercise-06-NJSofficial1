@@ -99,7 +99,7 @@ namespace Baufflaechenverwaltung
             var flaeche3 = new Bauflaeche
             {
                 FlurstueckNummer="0015 00012 001/004",
-                Bebaubarkeit = Bebaubarkeit.Nein,
+                Bebaubarkeit = Bebaubarkeit.Ja,
                 Status = FlaechenStatus.Naturschutzgebiet
             };
 
@@ -127,6 +127,9 @@ namespace Baufflaechenverwaltung
             // Test 2: Nicht bebaubar
             Console.WriteLine("Prüfe Fläche 2 (nicht bebaubar):");
             flaeche2.BebaubarkeitPruefen();
+
+            flaeche3.BebaubarkeitPruefen();
+            Console.WriteLine($"Ist Fläche 3 bebaubar? \n {flaeche3.Bebaubarkeit}");
 
             // Test 3: Bereits bebaut
             Console.WriteLine("Versuche Fläche 2 (bebaut) zu reservieren:");
