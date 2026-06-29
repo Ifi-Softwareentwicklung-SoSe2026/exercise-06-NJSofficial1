@@ -206,6 +206,17 @@ namespace Baufflaechenverwaltung
 
             Console.WriteLine($"\nStatus der Fläche 1: {flaeche1.Status}");
             Console.WriteLine($"Status der Fläche 2: {flaeche2.Status}");
+
+            // Export-Test
+            var alleVorhaben = new List<Bauvorhaben> { vorhaben };
+            ExportBauvorhaben(alleVorhaben);
+        }
+
+        static void ExportBauvorhaben(List<Bauvorhaben> vorhaben)
+        {
+            string exportPath = "aktive_bauvorhaben.txt";
+            ExportService.ExportActiveProjects(vorhaben, exportPath);
+            Console.WriteLine($"\nExport-Bericht wurde unter {exportPath} erstellt.");
         }
     }
 }
