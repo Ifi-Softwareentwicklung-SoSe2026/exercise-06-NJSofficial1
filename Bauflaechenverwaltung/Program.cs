@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Text.Json.Serialization;
+using PersistenzService;
 
-// Kevins Implementierung
-namespace Baufflaechenverwaltung
+namespace Bauflaechenverwaltung
 {
     public enum Nutzung { Gewerbe, Landwirtschaft, Forst, Wohnnutzung, Brachfläche }
     public enum Bebaubarkeit { Ja, Nein, Auflagen }
@@ -11,11 +11,19 @@ namespace Baufflaechenverwaltung
     public enum VorhabenStatus { AntragEingereicht, Genehmigt, Abgelehnt, InBearbeitung, Abgeschlossen }
     public enum Rolle { Administrator, Bauamtsmitarbeiter, Antragsteller, ExternerGutachter }
 
+    // Polymorphie-Attribute für die JSON-Erkennung der Unterklassen
+    [JsonDerivedType(typeof(Beteiligter), typeDiscriminator: "Basis")]
+    [JsonDerivedType(typeof(Antragsteller), typeDiscriminator: "Antragsteller")]
+    [JsonDerivedType(typeof(Bauamtsmitarbeiter), typeDiscriminator: "Bauamt")]
+    [JsonDerivedType(typeof(ExternerGutachter), typeDiscriminator: "Gutachter")]
     public class Beteiligter
     {
         public string Name { get; set; } = string.Empty;
         public string Kontaktdaten { get; set; } = string.Empty;
         public Rolle Rolle { get; set; }
+
+        // Parameterloser Konstruktor für die Deserialisierung
+        public Beteiligter() { }
 
         public Beteiligter(string name, string kontaktdaten, Rolle rolle)
         {
@@ -29,7 +37,8 @@ namespace Baufflaechenverwaltung
     {
         public string Firma { get; set; } = string.Empty;
 
-        // Nutzt base, um Name und Kontaktdaten an 'Beteiligter' weiterzugeben
+        public Antragsteller() { }
+
         public Antragsteller(string name, string kontaktdaten, string firma) 
             : base(name, kontaktdaten, Rolle.Antragsteller)
         {
@@ -41,6 +50,8 @@ namespace Baufflaechenverwaltung
     {
         public string Dienstnummer { get; set; } = string.Empty;
 
+        public Bauamtsmitarbeiter() { }
+
         public Bauamtsmitarbeiter(string name, string kontaktdaten, string dienstnummer) 
             : base(name, kontaktdaten, Rolle.Bauamtsmitarbeiter)
         {
@@ -51,6 +62,8 @@ namespace Baufflaechenverwaltung
     public class ExternerGutachter : Beteiligter
     {
         public string Fachgebiet { get; set; } = string.Empty;
+
+        public ExternerGutachter() { }
 
         public ExternerGutachter(string name, string kontaktdaten, string fachgebiet) 
             : base(name, kontaktdaten, Rolle.ExternerGutachter)
@@ -155,7 +168,6 @@ namespace Baufflaechenverwaltung
             var gutachter = new ExternerGutachter("Dr. Umwelt", "mueller@umwelt.de", "Greenpeace");
             var bauamtsmitarbeiter = new Bauamtsmitarbeiter("Herr Amtsschimmel", "amt@amt.de", "Bauamt");
 
-            // Demonstration
             var flaeche1 = new Bauflaeche
             {
                 FlurstueckNummer = "0015 00012 001/002",
@@ -195,7 +207,6 @@ namespace Baufflaechenverwaltung
                 Fertigstellung = DateTime.Now.AddYears(1)
             };
 
-            // Test 1: Gültige Reservierung
             if (flaeche1.BebaubarkeitPruefen())
             {
                 flaeche1.FlaecheReservieren();
@@ -203,7 +214,6 @@ namespace Baufflaechenverwaltung
                 Console.WriteLine($"Fläche {flaeche1.FlurstueckNummer} erfolgreich reserviert.");
             }
             
-            // ----- Rechtetest -----
             Console.WriteLine("\n----- Zugriffstest: -----");
             Console.WriteLine($"Aktueller Vorhabenstatus: {vorhaben.Status}\n");
 
@@ -212,19 +222,38 @@ namespace Baufflaechenverwaltung
             Console.WriteLine($"Aktion erfolgreich? {gutachterErfolg}");
             Console.WriteLine($"Status des Vorhabens ist: {vorhaben.Status}\n");
 
-            // Test 2: Nicht bebaubar
             Console.WriteLine("Prüfe Fläche 2 (nicht bebaubar):");
             flaeche2.BebaubarkeitPruefen();
 
             flaeche3.BebaubarkeitPruefen();
             Console.WriteLine($"Ist Fläche 3 bebaubar? \n {flaeche3.Bebaubarkeit}");
 
-            // Test 3: Bereits bebaut
             Console.WriteLine("Versuche Fläche 2 (bebaut) zu reservieren:");
             flaeche2.FlaecheReservieren();
 
-            // Aufruf der Funktion zum Anzeigen des Flächenstatus
             grundstueck.ZeigeFlaechenStatus();
+
+            // -------------------------------------------------------------
+            // PERSISTENZ DEMO
+            // -------------------------------------------------------------
+            Console.WriteLine("--- Starte JSON-Serialisierung ---");
+            var alleFlaechen = new List<Bauflaeche> { flaeche1, flaeche2, flaeche3 };
+            var alleVorhaben = new List<Bauvorhaben> { vorhaben };
+
+            // Daten abspeichern
+            DataPersistenceService.Save(alleFlaechen, alleVorhaben);
+
+            // Daten laden und testen
+            Console.WriteLine("\n--- Teste JSON-Deserialisierung ---");
+            PersistenceData geladeneDaten = DataPersistenceService.Load();
+            
+            Console.WriteLine($"Geladene Flächen: {geladeneDaten.Flaechen.Count}");
+            Console.WriteLine($"Geladene Vorhaben: {geladeneDaten.Vorhaben.Count}");
+
+            if (geladeneDaten.Vorhaben.Count > 0 && geladeneDaten.Vorhaben[0].Ersteller is Antragsteller geladenerAntragsteller)
+            {
+                Console.WriteLine($"Polymorphie-Check erfolgreich! Ersteller-Firma: {geladenerAntragsteller.Firma}");
+            }
         }
     }
 }
