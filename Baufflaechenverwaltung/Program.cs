@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 // Kevins Implementierung
 namespace Baufflaechenverwaltung
@@ -100,6 +101,25 @@ namespace Baufflaechenverwaltung
     {
         public string Bezeichnung { get; set; } = string.Empty;
         public List<Bauflaeche> Flaechen { get; set; } = new List<Bauflaeche>();
+
+        public void ZeigeFlaechenStatus()
+        {
+            Console.WriteLine("Flächenübersicht:");
+            if (Flaechen.Count == 0)
+            {
+                Console.WriteLine("Diesem Grundstück wurden keine Flächen zugeordnet.");
+            }
+            int i = 1;
+            foreach (var flaeche in Flaechen)
+            {
+                string nr = string.IsNullOrEmpty(flaeche.FlurstueckNummer) ? "keine Nummer angegeben" : flaeche.FlurstueckNummer;
+                string groesse = flaeche.Groesse > 0 ? $"{flaeche.Groesse}" : "keine Größe eingetragen";
+                Console.WriteLine($" Grundstück {i}:");
+                Console.WriteLine($"{nr, -20} , {groesse, -20} , {flaeche.Bebaubarkeit, -25} , {flaeche.Status, -20}");
+                i++;
+            } 
+            Console.WriteLine();
+        }
     }
 
     public class Bauvorhaben
@@ -191,7 +211,6 @@ namespace Baufflaechenverwaltung
             bool gutachterErfolg = vorhaben.StatusAktualisierungMitPruefung(gutachter, VorhabenStatus.Genehmigt);
             Console.WriteLine($"Aktion erfolgreich? {gutachterErfolg}");
             Console.WriteLine($"Status des Vorhabens ist: {vorhaben.Status}\n");
-            // -----
 
             // Test 2: Nicht bebaubar
             Console.WriteLine("Prüfe Fläche 2 (nicht bebaubar):");
@@ -204,8 +223,8 @@ namespace Baufflaechenverwaltung
             Console.WriteLine("Versuche Fläche 2 (bebaut) zu reservieren:");
             flaeche2.FlaecheReservieren();
 
-            Console.WriteLine($"\nStatus der Fläche 1: {flaeche1.Status}");
-            Console.WriteLine($"Status der Fläche 2: {flaeche2.Status}");
+            // Aufruf der Funktion zum Anzeigen des Flächenstatus
+            grundstueck.ZeigeFlaechenStatus();
         }
     }
 }
