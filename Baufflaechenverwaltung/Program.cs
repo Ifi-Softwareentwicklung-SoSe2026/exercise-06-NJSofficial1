@@ -225,6 +225,10 @@ namespace Baufflaechenverwaltung
 
             // Aufruf der Funktion zum Anzeigen des Flächenstatus
             grundstueck.ZeigeFlaechenStatus();
+
+            // Daten speichern
+            DataPersistenceService.Save(allFlaechen, allVorhaben);
+            Console.WriteLine("Daten wurden in data.json gespeichert.");
         }
     }
 }
