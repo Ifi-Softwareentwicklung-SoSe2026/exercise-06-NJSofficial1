@@ -209,8 +209,13 @@ namespace Baufflaechenverwaltung
 
             // Export-Test
             var alleVorhaben = new List<Bauvorhaben> { vorhaben };
+            ExportBauvorhaben(alleVorhaben);
+        }
+
+        static void ExportBauvorhaben(List<Bauvorhaben> vorhaben)
+        {
             string exportPath = "aktive_bauvorhaben.txt";
-            ExportService.ExportActiveProjects(alleVorhaben, exportPath);
+            ExportService.ExportActiveProjects(vorhaben, exportPath);
             Console.WriteLine($"\nExport-Bericht wurde unter {exportPath} erstellt.");
         }
     }
